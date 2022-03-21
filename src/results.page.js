@@ -103,7 +103,7 @@ export const ResultsPage = () => {
                                             max = destination.duration
                                         }
                                     })
-                                    return `Driving is between ${min.text} and ${max.text}`;
+                                    return `Driving ranges from ${min.text} and ${max.text}`;
                                 })
                                 setDistances(distances);
                             })
