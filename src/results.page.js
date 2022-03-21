@@ -17,22 +17,29 @@ export const ResultsPage = () => {
 
     //setup map & geocoder & placeservice & distance
     React.useEffect(() => {
-        const loader = new Loader({
-            apiKey: API_KEY,
-            version: "weekly",
-            libraries: ['places']
-        });
-
-        loader.load().then(() => {
-            const map = new window.google.maps.Map(document.getElementById("map"), {
-                center: { lat: -34.397, lng: 150.644 },
-                zoom: 10,
+        const user = localStorage.getItem('user');
+        if (!user) {
+            navigate("/");
+        } else if (!addresses.join('')) {
+            navigate("/search");
+        } else {
+            const loader = new Loader({
+                apiKey: API_KEY,
+                version: "weekly",
+                libraries: ['places']
             });
-            const geocoder = new window.google.maps.Geocoder();
-            const placeService = new window.google.maps.places.PlacesService(map);
-            const distanceService = new window.google.maps.DistanceMatrixService()
-            setGoogleApi({ ...googleApi, map: map, geocoder: geocoder, placeService: placeService, distanceService: distanceService });
-        });
+
+            loader.load().then(() => {
+                const map = new window.google.maps.Map(document.getElementById("map"), {
+                    center: { lat: -34.397, lng: 150.644 },
+                    zoom: 10,
+                });
+                const geocoder = new window.google.maps.Geocoder();
+                const placeService = new window.google.maps.places.PlacesService(map);
+                const distanceService = new window.google.maps.DistanceMatrixService()
+                setGoogleApi({ ...googleApi, map: map, geocoder: geocoder, placeService: placeService, distanceService: distanceService });
+            });
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

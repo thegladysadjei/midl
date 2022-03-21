@@ -5,6 +5,12 @@ import './search.page.css'
 export const SearchPage = () => {
     const navigate = useNavigate();
     const [addresses, setAddresses] = React.useState(['1025 preston rd plano tx', '5121 engleswood trl lewisville tx'])
+    React.useEffect(() => {
+        const user = localStorage.getItem('user');
+        if (!user) {
+            navigate("/");
+        }
+    })
     return (
         <div className="search">
             <div className="page">
@@ -31,7 +37,7 @@ export const SearchPage = () => {
                     <div className="m24 pointer" onClick={() => {
                         setAddresses([...addresses, ''])
                     }}>+ Add another address</div>
-                    <button className='btn' type='button' onClick={() => {
+                    <button disabled={!addresses.join('')} className='btn' type='button' onClick={() => {
                         navigate('/results', { state: { addresses: addresses } })
                     }}>Search</button>
                 </div>
