@@ -10,6 +10,15 @@
     overflow: hidden;
     overflow-y: auto;
 }
+.results .input{
+  background: rgba(241, 241, 241, .7);
+  width: 80%;
+  padding: 14px;
+  border-radius: 4px;
+  border: 0;
+  color: #3E3E3E;
+  margin-bottom: 24px;
+}
 .results .map {
     flex: 1;
     height: 100%;

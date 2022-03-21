@@ -13,6 +13,7 @@ export const ResultsPage = () => {
     const [places, setPlaces] = React.useState([]);
     const [distances, setDistances] = React.useState([])
     const [radius, setRadius] = React.useState(5)
+    const [mapLayer, setMapLayer] = React.useState({});
 
     //setup map & geocoder & placeservice & distance
     React.useEffect(() => {
@@ -55,13 +56,15 @@ export const ResultsPage = () => {
                     fillOpacity: 0.35,
                 });
                 // const polygonCentroid = polygon.centroid({ 'maxError': 1 });
+                var markers = [];
                 for (var i = 0; i < polygonCoords.length; i++) {
                     bounds.extend(polygonCoords[i]);
-                    new window.google.maps.Marker({
-                        position: { lat: polygonCoords[i].lat(), lng: polygonCoords[i].lng() },
-                        map: googleApi.map,
-                        title: addresses[i],
-                    });
+                    markers.push(
+                        new window.google.maps.Marker({
+                            position: { lat: polygonCoords[i].lat(), lng: polygonCoords[i].lng() },
+                            map: googleApi.map,
+                            title: addresses[i],
+                        }));
                 }
 
                 // The Center of the polygon
@@ -75,16 +78,16 @@ export const ResultsPage = () => {
                     fillOpacity: 0.35,
                     map: googleApi.map,
                     center: { lat: centroid.lat(), lng: centroid.lng() },
-                    radius: 1609.34 * 5,
+                    radius: 1609.34 * radius,
                 });
-                // polygon.setMap(googleApi.map);
+                polygon.setMap(googleApi.map);
 
                 const request = {
                     location: { lat: centroid.lat(), lng: centroid.lng() },
                     radius: 1609.34 * 5
                 };
                 googleApi.placeService.nearbySearch(request, (results, status) => {
-                    if (status == window.google.maps.places.PlacesServiceStatus.OK) {
+                    if (status === window.google.maps.places.PlacesServiceStatus.OK) {
                         console.log(results);
                         googleApi.distanceService.getDistanceMatrix(
                             {
@@ -103,20 +106,80 @@ export const ResultsPage = () => {
                                             max = destination.duration
                                         }
                                     })
-                                    return `Driving ranges from ${min.text} and ${max.text}`;
+                                    return `Driving ranges from ${min.text} to ${max.text}`;
                                 })
                                 setDistances(distances);
                             })
                         setPlaces(results)
                     }
                 })
+                setMapLayer({ markers: markers, cityCircle: cityCircle, polygonCoords: polygonCoords, centroid: centroid })
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [addresses, googleApi])
 
     React.useEffect(() => {
+        if (mapLayer.markers && mapLayer.cityCircle) {
+            setPlaces([]);
+            setDistances([]);
+            mapLayer.cityCircle.setMap(null);
+            mapLayer.markers.forEach(marker => {
+                marker.setMap(null);
+            })
+            var markers = [];
+            for (var i = 0; i < mapLayer.polygonCoords.length; i++) {
+                markers.push(
+                    new window.google.maps.Marker({
+                        position: { lat: mapLayer.polygonCoords[i].lat(), lng: mapLayer.polygonCoords[i].lng() },
+                        map: googleApi.map,
+                        title: addresses[i],
+                    }));
+            }
+            const cityCircle = new window.google.maps.Circle({
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+                map: googleApi.map,
+                center: { lat: mapLayer.centroid.lat(), lng: mapLayer.centroid.lng() },
+                radius: 1609.34 * radius,
+            });
 
+            const request = {
+                location: { lat: mapLayer.centroid.lat(), lng: mapLayer.centroid.lng() },
+                radius: 1609.34 * radius
+            };
+            googleApi.placeService.nearbySearch(request, (results, status) => {
+                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                    googleApi.distanceService.getDistanceMatrix(
+                        {
+                            origins: results.map(result => result.vicinity),
+                            destinations: addresses,
+                            travelMode: 'DRIVING'
+                        }).then(res => {
+                            const distances = res.rows.map(row => { //each origin
+                                var min = row.elements[0].duration;
+                                var max = row.elements[0].duration;
+                                row.elements.forEach((destination) => { //each destination
+                                    if (destination.duration.value < min.value) {
+                                        min = destination.duration
+                                    }
+                                    if (destination.duration.value > max.value) {
+                                        max = destination.duration
+                                    }
+                                })
+                                return `Driving ranges from ${min.text} to ${max.text}`;
+                            })
+                            setDistances(distances);
+                        })
+                    setPlaces(results)
+                }
+            })
+            setMapLayer({ ...mapLayer, markers: markers, cityCircle: cityCircle })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [radius])
 
     return (<div className="results">
@@ -124,15 +187,21 @@ export const ResultsPage = () => {
             <div className='pointer m24' onClick={() => {
                 navigate('/search')
             }}>Go back to search</div>
+            <div className='m24'>
+                <div>Set Radius in which places are found </div>
+                <input className='input' type={'number'} defaultValue={5} onChange={(event) => {
+                    setRadius(event.currentTarget.value);
+                }} value={radius} />
+            </div>
             {
                 places.map((place, index) => {
                     return (<div key={`places-${index}`} className='flex-row m24'>
-                        <img src={place.icon} height={30} />
+                        <img src={place.icon} height={30} alt='loc' />
                         <div>
                             <div>{place.name}</div>
                             <div className='subText'>{place.vicinity}</div>
                             {place.user_ratings_total && <div className='subText'>rating - {place.rating} ({place.user_ratings_total} total reviews)</div>}
-                            {distances.length > 0 && distances[index]}
+                            {distances.length > index && distances[index]}
                         </div>
                     </div>);
                 })
