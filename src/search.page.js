@@ -4,7 +4,7 @@ import './search.page.css'
 
 export const SearchPage = () => {
     const navigate = useNavigate();
-    const [addresses, setAddresses] = React.useState(['', ''])
+    const [addresses, setAddresses] = React.useState(['1025 preston rd plano tx', '5121 engleswood trl lewisville tx'])
     return (
         <div className="search">
             <div className="page">
@@ -32,7 +32,7 @@ export const SearchPage = () => {
                         setAddresses([...addresses, ''])
                     }}>+ Add another address</div>
                     <button className='btn' type='button' onClick={() => {
-                        navigate('/results')
+                        navigate('/results', { state: { addresses: addresses } })
                     }}>Search</button>
                 </div>
             </div>

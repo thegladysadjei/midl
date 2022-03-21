@@ -1,18 +1,91 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import './results.page.css'
+import React from "react";
+import { Loader } from '@googlemaps/js-api-loader';
+
+
 export const ResultsPage = () => {
+    const API_KEY = 'AIzaSyBzXty7sROTRdiGjO3NLiPHRHS0WDV27fg';
     const navigate = useNavigate();
-    return (
-        <div className="results">
-            <div className="spots">
-                <div className='pointer m24' onClick={() => {
-                    navigate('/search')
-                }}>Go back to search</div>
-                spots here
-            </div>
-            <div className="map">
-                map here
-            </div>
+    const location = useLocation();
+    const { addresses } = location.state;
+    const [googleApi, setGoogleApi] = React.useState({});
+
+    React.useEffect(() => {
+        const loader = new Loader({
+            apiKey: API_KEY,
+            version: "weekly",
+            libraries: ['places']
+        });
+
+        loader.load().then(() => {
+            const map = new window.google.maps.Map(document.getElementById("map"), {
+                center: { lat: -34.397, lng: 150.644 },
+                zoom: 10,
+            });
+            const geocoder = new window.google.maps.Geocoder();
+            const placeService = new window.google.maps.places.PlacesService(map)
+            setGoogleApi({ ...googleApi, map: map, geocoder: geocoder, placeService: placeService });
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+    React.useEffect(() => {
+        if (!addresses.join('')) {
+            navigate("/search");
+        } else if (googleApi.map && googleApi.geocoder) {
+            Promise.all(addresses.map(address => {
+                return googleApi.geocoder
+                    .geocode({ address: address });
+            })).then((values) => {
+                const bounds = new window.google.maps.LatLngBounds()
+                const polygonCoords = values.map(val => val.results[0].geometry.location);
+                const polygon = new window.google.maps.Polygon({
+                    paths: polygonCoords,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.35,
+                });
+                // const polygonCentroid = polygon.centroid({ 'maxError': 1 });
+                for (var i = 0; i < polygonCoords.length; i++) {
+                    bounds.extend(polygonCoords[i]);
+                    new window.google.maps.Marker({
+                        position: { lat: polygonCoords[i].lat(), lng: polygonCoords[i].lng() },
+                        map: googleApi.map,
+                        title: addresses[i],
+                    });
+                }
+
+                // The Center of the polygon
+                const centroid = bounds.getCenter();
+                googleApi.map.setCenter({ lat: centroid.lat(), lng: centroid.lng() })
+                const cityCircle = new window.google.maps.Circle({
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.35,
+                    map: googleApi.map,
+                    center: { lat: centroid.lat(), lng: centroid.lng() },
+                    radius: 1609.34 * 5,
+                });
+                // polygon.setMap(googleApi.map);
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [addresses, googleApi])
+
+    return (<div className="results">
+        <div className="spots">
+            <div className='pointer m24' onClick={() => {
+                navigate('/search')
+            }}>Go back to search</div>
+            spots here
         </div>
+        <div className="map" id="map">
+            map here
+        </div>
+    </div>
     )
 }

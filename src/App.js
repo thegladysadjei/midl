@@ -4,6 +4,7 @@ import { SearchPage } from './search.page'
 import { ResultsPage } from './results.page'
 import { DetailPage } from './details.page'
 import { Routes, Route } from "react-router-dom";
+import React from "react";
 
 function App() {
   return (
