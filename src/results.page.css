@@ -30,3 +30,7 @@
     cursor: pointer;
     background-color: rgba(128, 128, 128, 0.075);
 }
+
+.results .subText {
+    color: rgba(0, 0, 0, 0.644);
+}

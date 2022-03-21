@@ -11,6 +11,7 @@ export const ResultsPage = () => {
     const { addresses } = location.state;
     const [googleApi, setGoogleApi] = React.useState({});
     const [places, setPlaces] = React.useState([]);
+    const [distances, setDistances] = React.useState([])
     const [radius, setRadius] = React.useState(5)
 
     //setup map & geocoder & placeservice & distance
@@ -27,8 +28,9 @@ export const ResultsPage = () => {
                 zoom: 10,
             });
             const geocoder = new window.google.maps.Geocoder();
-            const placeService = new window.google.maps.places.PlacesService(map)
-            setGoogleApi({ ...googleApi, map: map, geocoder: geocoder, placeService: placeService });
+            const placeService = new window.google.maps.places.PlacesService(map);
+            const distanceService = new window.google.maps.DistanceMatrixService()
+            setGoogleApi({ ...googleApi, map: map, geocoder: geocoder, placeService: placeService, distanceService: distanceService });
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -84,6 +86,27 @@ export const ResultsPage = () => {
                 googleApi.placeService.nearbySearch(request, (results, status) => {
                     if (status == window.google.maps.places.PlacesServiceStatus.OK) {
                         console.log(results);
+                        googleApi.distanceService.getDistanceMatrix(
+                            {
+                                origins: results.map(result => result.vicinity),
+                                destinations: addresses,
+                                travelMode: 'DRIVING'
+                            }).then(res => {
+                                const distances = res.rows.map(row => { //each origin
+                                    var min = row.elements[0].duration;
+                                    var max = row.elements[0].duration;
+                                    row.elements.forEach((destination) => { //each destination
+                                        if (destination.duration.value < min.value) {
+                                            min = destination.duration
+                                        }
+                                        if (destination.duration.value > max.value) {
+                                            max = destination.duration
+                                        }
+                                    })
+                                    return `Driving is between ${min.text} and ${max.text}`;
+                                })
+                                setDistances(distances);
+                            })
                         setPlaces(results)
                     }
                 })
@@ -107,8 +130,9 @@ export const ResultsPage = () => {
                         <img src={place.icon} height={30} />
                         <div>
                             <div>{place.name}</div>
-                            <div>{place.vicinity}</div>
-                            {place.user_ratings_total && <div>rating - {place.rating} ({place.user_ratings_total} total reviews)</div>}
+                            <div className='subText'>{place.vicinity}</div>
+                            {place.user_ratings_total && <div className='subText'>rating - {place.rating} ({place.user_ratings_total} total reviews)</div>}
+                            {distances.length > 0 && distances[index]}
                         </div>
                     </div>);
                 })
