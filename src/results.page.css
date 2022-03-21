@@ -5,8 +5,10 @@
     width: 100vw;
 }
 .results .spots {
-    width: 400px;
+    width: 500px;
     height: 100%;
+    overflow: hidden;
+    overflow-y: auto;
 }
 .results .map {
     flex: 1;
@@ -17,4 +19,14 @@
 }
 .results .pointer{
     cursor: pointer;
+}
+
+.results .flex-row{
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    padding: 8px;
+    margin: 12px;
+    cursor: pointer;
+    background-color: rgba(128, 128, 128, 0.075);
 }

@@ -10,7 +10,10 @@ export const ResultsPage = () => {
     const location = useLocation();
     const { addresses } = location.state;
     const [googleApi, setGoogleApi] = React.useState({});
+    const [places, setPlaces] = React.useState([]);
+    const [radius, setRadius] = React.useState(5)
 
+    //setup map & geocoder & placeservice & distance
     React.useEffect(() => {
         const loader = new Loader({
             apiKey: API_KEY,
@@ -29,6 +32,8 @@ export const ResultsPage = () => {
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+
     React.useEffect(() => {
         if (!addresses.join('')) {
             navigate("/search");
@@ -71,17 +76,43 @@ export const ResultsPage = () => {
                     radius: 1609.34 * 5,
                 });
                 // polygon.setMap(googleApi.map);
+
+                const request = {
+                    location: { lat: centroid.lat(), lng: centroid.lng() },
+                    radius: 1609.34 * 5
+                };
+                googleApi.placeService.nearbySearch(request, (results, status) => {
+                    if (status == window.google.maps.places.PlacesServiceStatus.OK) {
+                        console.log(results);
+                        setPlaces(results)
+                    }
+                })
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [addresses, googleApi])
+
+    React.useEffect(() => {
+
+    }, [radius])
 
     return (<div className="results">
         <div className="spots">
             <div className='pointer m24' onClick={() => {
                 navigate('/search')
             }}>Go back to search</div>
-            spots here
+            {
+                places.map((place, index) => {
+                    return (<div key={`places-${index}`} className='flex-row m24'>
+                        <img src={place.icon} height={30} />
+                        <div>
+                            <div>{place.name}</div>
+                            <div>{place.vicinity}</div>
+                            {place.user_ratings_total && <div>rating - {place.rating} ({place.user_ratings_total} total reviews)</div>}
+                        </div>
+                    </div>);
+                })
+            }
         </div>
         <div className="map" id="map">
             map here
