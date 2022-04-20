@@ -25,7 +25,9 @@ jobs:
 
       # Build and push image to Google Container Registry
       - name: Build
-        run: gcloud builds submit --tag gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA --substitutions=API_KEY=${{ secrets.API_KEY }}
+        run: |
+          docker build --build-arg API_KEY=${{ secrets.API_KEY }} -t gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA .
+          docker push gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA
 
       - name: Deploy
         run: gcloud run deploy $APP_ID --image gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA --platform managed --region $RUN_REGION --allow-unauthenticated
