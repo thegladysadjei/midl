@@ -5,7 +5,7 @@ import { Loader } from '@googlemaps/js-api-loader';
 
 
 export const ResultsPage = () => {
-    const API_KEY = 'AIzaSyBzXty7sROTRdiGjO3NLiPHRHS0WDV27fg';
+    const API_KEY = process.env.REACT_APP_DB_API_KEY;
     const navigate = useNavigate();
     const location = useLocation();
     const { addresses = [] } = (location.state || {});
