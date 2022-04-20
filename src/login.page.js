@@ -1,13 +1,33 @@
 import { useNavigate } from 'react-router-dom'
 import './login.page.css'
 import React from 'react';
+import { db } from './firebase-config';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
 export const LoginPage = () => {
     const navigate = useNavigate();
+    const userCollectionRef = collection(db, "users");
     const [cred, setCred] = React.useState({});
-    const login = () => {
-        //save to DB
-        //if successful sabe email to localStorage
-        // localStorage.setItem('user', cred.email);
+    const [error, setError] = React.useState('');
+    const login = async () => {
+        try {
+            const data = await getDocs(userCollectionRef);
+            const existingUser = data.docs.find(doc => doc.data.email == cred.email)
+            if (existingUser) {
+                if (existingUser.password == cred.password) {
+                    localStorage.setItem('user', cred.email);
+                    setError('')
+                    navigate('/search');
+                } else {
+                    setError("Email or password is invalid. Try again");
+                }
+            } else {
+                await addDoc(userCollectionRef, { email: cred.email, password: cred.password })
+                localStorage.setItem('user', cred.email);
+                navigate('/search');
+            }
+        } catch (e) {
+            setError("Error Login in")
+        }
     }
     React.useEffect(() => {
         const user = localStorage.getItem('user');
@@ -20,6 +40,7 @@ export const LoginPage = () => {
             <div className='page'>
                 <div className='login-wrapper'>
                     <h4>An account will be created for you if it doesn't already exist</h4>
+                    {error && <h3 style={{ color: 'red' }}>{error}</h3>}
                     <div className='form-group row'>
                         <input className='input' type='text' placeholder='Email' onChange={(event) => {
                             setCred({ ...cred, email: event.currentTarget.value.trim() });
@@ -31,9 +52,7 @@ export const LoginPage = () => {
                         }} />
                     </div>
                     <div className='form-group row'>
-                        <button disabled={!(cred.email && cred.password)} className='btn' type='button' onClick={() => {
-                            navigate('/search')
-                        }}>Continue</button>
+                        <button disabled={!(cred.email && cred.password)} className='btn' type='button' onClick={login}>Continue</button>
                     </div>
                 </div>
             </div>

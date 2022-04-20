@@ -8,7 +8,7 @@ export const ResultsPage = () => {
     const API_KEY = 'AIzaSyBzXty7sROTRdiGjO3NLiPHRHS0WDV27fg';
     const navigate = useNavigate();
     const location = useLocation();
-    const { addresses } = location.state;
+    const { addresses = [] } = (location.state || {});
     const [googleApi, setGoogleApi] = React.useState({});
     const [places, setPlaces] = React.useState([]);
     const [distances, setDistances] = React.useState([])
@@ -191,12 +191,16 @@ export const ResultsPage = () => {
 
     return (<div className="results">
         <div className="spots">
-            <div className='pointer m24' onClick={() => {
+            <button style={{ marginRight: 24 }} className='m24' onClick={() => {
                 navigate('/search')
-            }}>Go back to search</div>
+            }}>Go back to search</button>
+            <button className='m24' onClick={() => {
+                localStorage.clear();
+                navigate('/')
+            }}>LOGOUT</button>
             <div className='m24'>
                 <div>Set Radius in which places are found </div>
-                <input className='input' type={'number'} defaultValue={5} onChange={(event) => {
+                <input className='input' type={'number'} onChange={(event) => {
                     setRadius(event.currentTarget.value);
                 }} value={radius} />
             </div>

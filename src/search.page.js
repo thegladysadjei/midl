@@ -4,7 +4,7 @@ import './search.page.css'
 
 export const SearchPage = () => {
     const navigate = useNavigate();
-    const [addresses, setAddresses] = React.useState(['1025 preston rd plano tx', '5121 engleswood trl lewisville tx'])
+    const [addresses, setAddresses] = React.useState(['2601 preston rd, plano, tx', '2070 Spring Creek Pkwy, plano, tx'])
     React.useEffect(() => {
         const user = localStorage.getItem('user');
         if (!user) {
