@@ -9,6 +9,12 @@ env:
   APP_ID: midl-app
   RUN_REGION: us-central1
   SA_KEY_JSON: ${{ secrets.GCP_SA_KEY_JSON }}
+  DB_API_KEY: ${{ secrets.API_KEY }}
+  DB_AUTH_DOMAIN: ${{ secrets.AUTH_DOMAIN }}
+  DB_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+  DB_STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
+  DB_MSG_SENDER_ID: ${{ secrets.MSG_SENDER_ID }}
+  DB_APP_ID: ${{ secrets.APP_ID }}
 jobs:
   deploy:
     name: Deploy to Cloud Run
@@ -22,11 +28,12 @@ jobs:
           version: "290.0.1"
           service_account_key: ${{ secrets.GCP_SA_KEY_JSON }}
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-
+          export_default_credentials: true
+  
       # Build and push image to Google Container Registry
-      - name: Build
+      - name: Build and Push
         run: |
-          docker build --build-arg API_KEY=${{ secrets.API_KEY }} -t gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA .
+          docker build --build-arg API_KEY=$DB_API_KEY -t gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA .
           docker push gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA
 
       - name: Deploy
