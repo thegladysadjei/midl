@@ -33,6 +33,7 @@ jobs:
       # Build and push image to Google Container Registry
       - name: Build and Push
         run: |
+          gcloud auth configure-docker -q
           docker build --build-arg API_KEY=$DB_API_KEY -t gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA .
           docker push gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA
 
