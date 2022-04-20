@@ -11,10 +11,10 @@ export const LoginPage = () => {
     const login = async () => {
         try {
             getDocs(userCollectionRef).then(data => {
-                const existingUser = data.docs.find(doc => doc.data.email == cred.email)
+                const existingUser = data.docs.find(doc => doc.data().email == cred.email)
                 if (existingUser) {
-                    if (existingUser.password == cred.password) {
-                        localStorage.setItem('user', cred.email);
+                    if (existingUser.password === cred.password) {
+                        localStorage.setItem('user', doc.data().email);
                         setError('')
                         navigate('/search');
                     } else {
@@ -22,7 +22,7 @@ export const LoginPage = () => {
                     }
                 } else {
                     console.log("no user");
-                    addDoc(userCollectionRef, { email: cred.email, password: cred.password }).then((res) => {
+                    addDoc(userCollectionRef, { email: cred.email, password: cred.password }).then(() => {
                         localStorage.setItem('user', cred.email);
                         navigate('/search');
                     }, () => {
