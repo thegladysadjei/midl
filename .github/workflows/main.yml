@@ -25,7 +25,7 @@ jobs:
 
       # Build and push image to Google Container Registry
       - name: Build
-        run: gcloud builds submit --tag gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA --substitutions API_KEY=${{ secrets.API_KEY }} AUTH_DOMAIN=${{ secrets.AUTH_DOMAIN }} PROJECT_ID=${{ secrets.PROJECT_ID }} STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }} MSG_SENDER_ID=${{ secrets.MSG_SENDER_ID }} APP_ID=${{ secrets.APP_ID}}
+        run: gcloud builds submit --tag gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA --build-arg API_KEY=${{ secrets.API_KEY }} --build-arg AUTH_DOMAIN=${{ secrets.AUTH_DOMAIN }} --build-arg PROJECT_ID=${{ secrets.PROJECT_ID }} --build-arg STORAGE_BUCKET=${{ secrets.STORAGE_BUCKET }} --build-arg MSG_SENDER_ID=${{ secrets.MSG_SENDER_ID }} --build-arg APP_ID=${{ secrets.APP_ID}}
 
       - name: Deploy
         run: gcloud run deploy $APP_ID --image gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA --platform managed --region $RUN_REGION --allow-unauthenticated
