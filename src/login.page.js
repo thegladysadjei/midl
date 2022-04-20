@@ -10,21 +10,32 @@ export const LoginPage = () => {
     const [error, setError] = React.useState('');
     const login = async () => {
         try {
-            const data = await getDocs(userCollectionRef);
-            const existingUser = data.docs.find(doc => doc.data.email == cred.email)
-            if (existingUser) {
-                if (existingUser.password == cred.password) {
-                    localStorage.setItem('user', cred.email);
-                    setError('')
-                    navigate('/search');
+            getDocs(userCollectionRef).then(data => {
+                const existingUser = data.docs.find(doc => doc.data.email == cred.email)
+                if (existingUser) {
+                    if (existingUser.password == cred.password) {
+                        localStorage.setItem('user', cred.email);
+                        setError('')
+                        navigate('/search');
+                    } else {
+                        setError("Email or password is invalid. Try again");
+                    }
                 } else {
-                    setError("Email or password is invalid. Try again");
+                    console.log("no user");
+                    addDoc(userCollectionRef, { email: cred.email, password: cred.password }).then((res) => {
+                        localStorage.setItem('user', cred.email);
+                        navigate('/search');
+                    }, () => {
+                        setError("Error Login in")
+                    }).catch(() => {
+                        setError("Error Login in")
+                    })
                 }
-            } else {
-                await addDoc(userCollectionRef, { email: cred.email, password: cred.password })
-                localStorage.setItem('user', cred.email);
-                navigate('/search');
-            }
+            }, () => {
+                setError("Error Login in")
+            }).catch(() => {
+                setError("Error Login in")
+            });
         } catch (e) {
             setError("Error Login in")
         }
