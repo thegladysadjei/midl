@@ -31,10 +31,10 @@ jobs:
           export_default_credentials: true
   
       # Build and push image to Google Container Registry
-      - name: Build and Push
+      - name: Build and Push Image
         run: |
           gcloud auth configure-docker -q
-          docker build --build-arg API_KEY=$DB_API_KEY -t gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA .
+          docker build --build-arg API_KEY=$DB_API_KEY --build-arg AUTH_DOMAIN=$DB_AUTH_DOMAIN --build-arg PROJECT_ID=$DB_PROJECT_ID --build-arg STORAGE_BUCKET=$DB_STORAGE_BUCKET --build-arg MSG_SENDER_ID=$DB_MSG_SENDER_ID --build-arg APP_ID=$DB_APP_ID -t gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA .
           docker push gcr.io/$PROJECT_ID/$APP_ID:$GITHUB_SHA
 
       - name: Deploy
