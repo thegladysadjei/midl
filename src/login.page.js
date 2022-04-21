@@ -11,10 +11,9 @@ export const LoginPage = () => {
     const login = async () => {
         try {
             getDocs(userCollectionRef).then(data => {
-                const existingUser = data.docs.find(doc => doc.data().email == cred.email)
+                const existingUser = data.docs.find(doc => doc.data().email === cred.email)
                 if (existingUser) {
-                    console.log(existingUser.password, cred.password)
-                    if (existingUser.password == cred.password) {
+                    if (existingUser.data().password === cred.password) {
                         localStorage.setItem('user', existingUser.data().email);
                         setError('')
                         navigate('/search');
@@ -22,7 +21,6 @@ export const LoginPage = () => {
                         setError("Email or password is invalid. Try again");
                     }
                 } else {
-                    console.log("no user");
                     addDoc(userCollectionRef, { email: cred.email, password: cred.password }).then(() => {
                         localStorage.setItem('user', cred.email);
                         navigate('/search');
