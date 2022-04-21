@@ -94,7 +94,7 @@ export const ResultsPage = () => {
                     radius: 1609.34 * 5
                 };
                 googleApi.placeService.nearbySearch(request, (results, status) => {
-                    if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                    if (status == window.google.maps.places.PlacesServiceStatus.OK) {
                         console.log(results);
                         googleApi.distanceService.getDistanceMatrix(
                             {
@@ -159,7 +159,7 @@ export const ResultsPage = () => {
                 radius: 1609.34 * radius
             };
             googleApi.placeService.nearbySearch(request, (results, status) => {
-                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                if (status == window.google.maps.places.PlacesServiceStatus.OK) {
                     googleApi.distanceService.getDistanceMatrix(
                         {
                             origins: results.map(result => result.vicinity),

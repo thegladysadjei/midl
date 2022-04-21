@@ -11,9 +11,10 @@ export const LoginPage = () => {
     const login = async () => {
         try {
             getDocs(userCollectionRef).then(data => {
-                const existingUser = data.docs.find(doc => doc.data().email === cred.email)
+                const existingUser = data.docs.find(doc => doc.data().email == cred.email)
                 if (existingUser) {
-                    if (existingUser.password === cred.password) {
+                    console.log(existingUser.password, cred.password)
+                    if (existingUser.password == cred.password) {
                         localStorage.setItem('user', existingUser.data().email);
                         setError('')
                         navigate('/search');
