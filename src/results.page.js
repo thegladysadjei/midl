@@ -106,14 +106,14 @@ export const ResultsPage = () => {
                                     var min = row.elements[0].duration;
                                     var max = row.elements[0].duration;
                                     row.elements.forEach((destination) => { //each destination
-                                        if (destination?.duration?.value || 0 < min.value) {
+                                        if (destination?.duration?.value || 0 < min?.value || 0) {
                                             min = destination.duration
                                         }
-                                        if (destination?.duration?.value || 0 > max.value) {
+                                        if (destination?.duration?.value || 0 > max?.value || 0) {
                                             max = destination.duration
                                         }
                                     })
-                                    return `Driving ranges from ${min.text} to ${max.text}`;
+                                    return `Driving ranges from ${min?.text} to ${max?.text}`;
                                 })
                                 setDistances(distances);
                             })
