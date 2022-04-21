@@ -106,10 +106,10 @@ export const ResultsPage = () => {
                                     var min = row.elements[0].duration;
                                     var max = row.elements[0].duration;
                                     row.elements.forEach((destination) => { //each destination
-                                        if (destination.duration.value < min.value) {
+                                        if (destination?.duration?.value || 0 < min.value) {
                                             min = destination.duration
                                         }
-                                        if (destination.duration.value > max.value) {
+                                        if (destination?.duration?.value || 0 > max.value) {
                                             max = destination.duration
                                         }
                                     })
